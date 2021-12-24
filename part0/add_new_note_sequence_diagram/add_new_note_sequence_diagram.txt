@@ -1,0 +1,15 @@
+title Sequence Diagram to create a new note
+
+Browser->Server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note
+note over Browser: new note data accessed with body of the POST-request
+note over Server: new note added to notes array and redirected to main page
+Server-->Browser: Status Code 302 redirect to https://studies.cs.helsinki.fi/exampleapp/notes
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+Server-->Browser: HTML-code
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+Server-->Browser: main.css
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+note over Browser: browser starts executing js-code that requests json data from server
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+Server-->Browser: [{ content: "Any juicers?", date: "2021-12-23T19:00:59.685Z" }, ...]
+note over Browser: Browser executes the event handler that renders notes to display with new note added
