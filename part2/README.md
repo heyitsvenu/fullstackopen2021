@@ -1,1 +1,1 @@
-This is the part1 of the course.
+This is the part2 of the course.

@@ -1,1 +1,1 @@
-This is the sub-part called Course Information in the part2.
+This is the sub-part called The Phonebook in the part2.
