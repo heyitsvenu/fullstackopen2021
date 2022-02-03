@@ -3,6 +3,7 @@ import axios from 'axios';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
+import personsService from './services/persons';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,13 +13,15 @@ const App = () => {
 
   useEffect(() => {
     console.log('start fetching data...');
-    axios.get('http://localhost:3001/persons').then((response) => {
+    personsService.getAllPersons().then((initialPersons) => {
       console.log('complete fetching data...');
-      setPersons(response.data);
+      setPersons(initialPersons);
     });
   }, []);
 
-  console.log('Person: ', persons);
+  useEffect(() => {
+    console.log('Person: ', persons);
+  }, [persons]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -32,13 +35,36 @@ const App = () => {
         (person) => person.name.toLowerCase() === newName.toLowerCase()
       )
     ) {
-      alert(`${newName} is already added to phonebook`);
-    } else if (persons.some((person) => person.number === newNumber)) {
-      alert(`${newNumber} already exists in phonebook`);
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const personToUpdate = persons.find(
+          (person) => person.name.toLowerCase() === newName.toLowerCase()
+        );
+        personsService
+          .updatePerson(personToUpdate.id, {
+            ...personObject,
+            id: personToUpdate.id,
+          })
+          .then((returnedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== personToUpdate.id ? person : returnedPerson
+              )
+            );
+          });
+        alert(`${newName} updated`);
+      } else {
+        alert(`${newName} not updated`);
+      }
     } else {
-      setPersons(persons.concat(personObject));
-      setNewName('');
-      setNewNumber('');
+      personsService.createPerson(personObject).then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName('');
+        setNewNumber('');
+      });
     }
   };
 
@@ -61,6 +87,17 @@ const App = () => {
           person.name.toLowerCase().includes(filterValue.toLowerCase())
         );
 
+  const deletePerson = (id, name) => {
+    if (window.confirm(`delete ${name} ?`)) {
+      personsService.deletePerson(id).then((response) => {
+        setPersons(persons.filter((person) => person.id !== id));
+        alert(`${name} deleted`);
+      });
+    } else {
+      alert(`${name} not deleted`);
+    }
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -77,7 +114,7 @@ const App = () => {
         handleSubmit={handleSubmit}
       />
       <h2>Numbers</h2>
-      <Persons showPersons={showPersons} />
+      <Persons showPersons={showPersons} deletePerson={deletePerson} />
     </div>
   );
 };
