@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import personsService from './services/persons';
+import SuccessNotification from './components/SuccessNotification';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filterValue, setFilterValue] = useState('');
+  const [successMessage, setSuccessMessage] = useState({
+    show: false,
+    message: null,
+  });
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     console.log('start fetching data...');
@@ -54,16 +59,55 @@ const App = () => {
                 person.id !== personToUpdate.id ? person : returnedPerson
               )
             );
+            setNewName('');
+            setNewNumber('');
+            setSuccessMessage({
+              show: true,
+              message: `Updated ${returnedPerson.name}'s number to ${returnedPerson.number}`,
+            });
+            setTimeout(() => {
+              setSuccessMessage({ show: false, message: null });
+            }, 5000);
+          })
+          .catch((error) => {
+            setError(true);
+            setSuccessMessage({
+              show: true,
+              message: `Information of ${personToUpdate.name} has already been removed from server.`,
+            });
+            setTimeout(() => {
+              setError(false);
+              setSuccessMessage({ show: false, message: null });
+            }, 5000);
+            setPersons(
+              persons.filter((person) => person.id !== personToUpdate.id)
+            );
           });
-        alert(`${newName} updated`);
       } else {
-        alert(`${newName} not updated`);
+        setNewName('');
+        setNewNumber('');
+        setError(true);
+        setSuccessMessage({
+          show: true,
+          message: `No changes made.`,
+        });
+        setTimeout(() => {
+          setError(false);
+          setSuccessMessage({ show: false, message: null });
+        }, 5000);
       }
     } else {
       personsService.createPerson(personObject).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
         setNewName('');
         setNewNumber('');
+        setSuccessMessage({
+          show: true,
+          message: `Added ${returnedPerson.name}`,
+        });
+        setTimeout(() => {
+          setSuccessMessage({ show: false, message: null });
+        }, 5000);
       });
     }
   };
@@ -89,18 +133,47 @@ const App = () => {
 
   const deletePerson = (id, name) => {
     if (window.confirm(`delete ${name} ?`)) {
-      personsService.deletePerson(id).then((response) => {
-        setPersons(persons.filter((person) => person.id !== id));
-        alert(`${name} deleted`);
-      });
+      personsService
+        .deletePerson(id)
+        .then((response) => {
+          setPersons(persons.filter((person) => person.id !== id));
+          setSuccessMessage({
+            show: true,
+            message: `${name} deleted.`,
+          });
+          setTimeout(() => {
+            setSuccessMessage({ show: false, message: null });
+          }, 5000);
+        })
+        .catch((error) => {
+          setError(true);
+          setSuccessMessage({
+            show: true,
+            message: `Information of ${name} has already been removed from server.`,
+          });
+          setTimeout(() => {
+            setError(false);
+            setSuccessMessage({ show: false, message: null });
+          }, 5000);
+          setPersons(persons.filter((person) => person.id !== id));
+        });
     } else {
-      alert(`${name} not deleted`);
+      setSuccessMessage({
+        show: true,
+        message: `${name} not deleted.`,
+      });
+      setTimeout(() => {
+        setSuccessMessage({ show: false, message: null });
+      }, 5000);
     }
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      {successMessage.show ? (
+        <SuccessNotification message={successMessage.message} error={error} />
+      ) : null}
       <Filter
         filterValue={filterValue}
         handleFilterChange={handleFilterChange}
