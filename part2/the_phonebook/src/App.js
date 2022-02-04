@@ -10,10 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filterValue, setFilterValue] = useState('');
-  const [successMessage, setSuccessMessage] = useState({
-    show: false,
-    message: null,
-  });
+  const [successMessage, setSuccessMessage] = useState(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -61,23 +58,21 @@ const App = () => {
             );
             setNewName('');
             setNewNumber('');
-            setSuccessMessage({
-              show: true,
-              message: `Updated ${returnedPerson.name}'s number to ${returnedPerson.number}`,
-            });
+            setSuccessMessage(
+              `Updated ${returnedPerson.name}'s number to ${returnedPerson.number}`
+            );
             setTimeout(() => {
-              setSuccessMessage({ show: false, message: null });
+              setSuccessMessage(null);
             }, 5000);
           })
           .catch((error) => {
             setError(true);
-            setSuccessMessage({
-              show: true,
-              message: `Information of ${personToUpdate.name} has already been removed from server.`,
-            });
+            setSuccessMessage(
+              `Information of ${personToUpdate.name} has already been removed from server.`
+            );
             setTimeout(() => {
               setError(false);
-              setSuccessMessage({ show: false, message: null });
+              setSuccessMessage(null);
             }, 5000);
             setPersons(
               persons.filter((person) => person.id !== personToUpdate.id)
@@ -87,13 +82,10 @@ const App = () => {
         setNewName('');
         setNewNumber('');
         setError(true);
-        setSuccessMessage({
-          show: true,
-          message: `No changes made.`,
-        });
+        setSuccessMessage(`No changes made.`);
         setTimeout(() => {
           setError(false);
-          setSuccessMessage({ show: false, message: null });
+          setSuccessMessage(null);
         }, 5000);
       }
     } else {
@@ -101,12 +93,9 @@ const App = () => {
         setPersons(persons.concat(returnedPerson));
         setNewName('');
         setNewNumber('');
-        setSuccessMessage({
-          show: true,
-          message: `Added ${returnedPerson.name}`,
-        });
+        setSuccessMessage(`Added ${returnedPerson.name}`);
         setTimeout(() => {
-          setSuccessMessage({ show: false, message: null });
+          setSuccessMessage(null);
         }, 5000);
       });
     }
@@ -137,33 +126,26 @@ const App = () => {
         .deletePerson(id)
         .then((response) => {
           setPersons(persons.filter((person) => person.id !== id));
-          setSuccessMessage({
-            show: true,
-            message: `${name} deleted.`,
-          });
+          setSuccessMessage(`${name} deleted.`);
           setTimeout(() => {
-            setSuccessMessage({ show: false, message: null });
+            setSuccessMessage(null);
           }, 5000);
         })
         .catch((error) => {
           setError(true);
-          setSuccessMessage({
-            show: true,
-            message: `Information of ${name} has already been removed from server.`,
-          });
+          setSuccessMessage(
+            `Information of ${name} has already been removed from server.`
+          );
           setTimeout(() => {
             setError(false);
-            setSuccessMessage({ show: false, message: null });
+            setSuccessMessage(null);
           }, 5000);
           setPersons(persons.filter((person) => person.id !== id));
         });
     } else {
-      setSuccessMessage({
-        show: true,
-        message: `${name} not deleted.`,
-      });
+      setSuccessMessage(`${name} not deleted.`);
       setTimeout(() => {
-        setSuccessMessage({ show: false, message: null });
+        setSuccessMessage(null);
       }, 5000);
     }
   };
@@ -171,9 +153,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      {successMessage.show ? (
-        <SuccessNotification message={successMessage.message} error={error} />
-      ) : null}
+      <SuccessNotification message={successMessage} error={error} />
       <Filter
         filterValue={filterValue}
         handleFilterChange={handleFilterChange}

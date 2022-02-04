@@ -10,6 +10,10 @@ const SuccessNotification = ({ message, error }) => {
     marginBottom: 10,
     borderRadius: 5,
   };
+
+  if (message === null) {
+    return null;
+  }
   return (
     <div className='success' style={divStyle}>
       {message}
